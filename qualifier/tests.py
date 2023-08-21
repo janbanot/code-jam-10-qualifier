@@ -112,7 +112,7 @@ class ValidInputTest(unittest.TestCase):
                 user_output = np.array(Image.open("images/user_output.png"))
 
                 self.assertTrue((user_output == correct_output).all())
-    
+
 
 if __name__ == "__main__":
     unittest.main()
