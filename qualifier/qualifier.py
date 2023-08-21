@@ -40,6 +40,7 @@ def rearrange_tiles(
     """
     with Image.open(image_path) as img:
         image_size = img.size
+        image_mode = img.mode
         if not valid_input(image_size, tile_size, ordering):
             raise ValueError(
                 "The tile size or ordering are not valid for the given image"
@@ -47,14 +48,16 @@ def rearrange_tiles(
 
         dx, dy = tile_size
         tiles = split_into_tiles(img, dx, dy)
-        sorted_tiles = [tile for _, tile in sorted(zip(ordering, tiles))]
+        sorted_tiles = [tiles[index] for index in ordering]
         width_count = image_size[0] // dx
         height_count = image_size[1] // dy
-        new_img = combine_tiles(sorted_tiles, width_count, height_count, dx, dy)
+        new_img = combine_tiles(
+            sorted_tiles, width_count, height_count, dx, dy, image_mode
+        )
         new_img.save(out_path)
 
 
-# split the img into tile of size (dx, dy)
+# Split the img into tile of size (dx, dy)
 def split_into_tiles(img, dx, dy):
     width, height = img.size
     tiles = [
@@ -65,12 +68,12 @@ def split_into_tiles(img, dx, dy):
     return tiles
 
 
-def combine_tiles(tiles, width_count, height_count, dx, dy):
-    img = Image.new("RGB", (dx * width_count, dy * height_count))
+def combine_tiles(tiles, width_count, height_count, dx, dy, image_mode):
+    img = Image.new(image_mode, (dx * width_count, dy * height_count))
     for i, tile in enumerate(tiles):
-        # column index of the tile, wraps around once the width of the image is reached
+        # Column index of the tile, wraps around once the width of the image is reached
         x = (i % width_count) * dx
-        # row index of the tile, it increases as tiles fill up full rows
+        # Row index of the tile, it increases as tiles fill up full rows
         y = (i // width_count) * dy
         img.paste(tile, (x, y))
     return img
